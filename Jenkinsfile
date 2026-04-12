@@ -30,8 +30,21 @@ pipeline {
 
         stage('Terraform Plan') {
             steps {
-                bat 'terraform plan -var-file="terraform.tfvars" -out=tfplan'
-                archiveArtifacts artifacts: 'tfplan', allowEmptyArchive: false
+                script {
+                    withCredentials([
+                        string(credentialsId: 'dynatrace-token', variable: 'DYNA_TOKEN'),
+                        string(credentialsId: 'dynatrace-tenant', variable: 'DYNA_TENANT')
+                    ]) {
+                        bat '''
+                            terraform plan ^
+                            -var="key_name=null" ^
+                            -var="dynatrace_tenant=%DYNA_TENANT%" ^
+                            -var="dynatrace_token=%DYNA_TOKEN%" ^
+                            -out=tfplan
+                        '''
+                        archiveArtifacts artifacts: 'tfplan', allowEmptyArchive: false
+                    }
+                }
             }
         }
 
@@ -43,7 +56,20 @@ pipeline {
 
         stage('Terraform Apply') {
             steps {
-                bat 'terraform apply -var-file="terraform.tfvars" tfplan'
+                script {
+                    withCredentials([
+                        string(credentialsId: 'dynatrace-token', variable: 'DYNA_TOKEN'),
+                        string(credentialsId: 'dynatrace-tenant', variable: 'DYNA_TENANT')
+                    ]) {
+                        bat '''
+                            terraform apply ^
+                            -var="key_name=null" ^
+                            -var="dynatrace_tenant=%DYNA_TENANT%" ^
+                            -var="dynatrace_token=%DYNA_TOKEN%" ^
+                            tfplan
+                        '''
+                    }
+                }
             }
         }
 
