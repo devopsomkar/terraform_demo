@@ -1,3 +1,28 @@
 resource "aws_ecs_cluster" "my_cluster" {
   name = "my-ecs-cluster"
 }
+
+resource "aws_ecs_capacity_provider" "ec2_cp" {
+  name = "ec2-cp"
+
+  auto_scaling_group_provider {
+    auto_scaling_group_arn         = aws_autoscaling_group.ecs_asg.arn
+    managed_termination_protection = "ENABLED"
+
+    managed_scaling {
+      status          = "ENABLED"
+      target_capacity = 20
+    }
+  }
+}
+
+resource "aws_ecs_cluster_capacity_providers" "my_cluster_cp" {
+  cluster_name = aws_ecs_cluster.my_cluster.name
+
+  capacity_providers = [aws_ecs_capacity_provider.ec2_cp.name]
+
+  default_capacity_provider_strategy {
+    capacity_provider = aws_ecs_capacity_provider.ec2_cp.name
+    weight            = 1
+  }
+}
