@@ -1,14 +1,21 @@
 #!/bin/bash
-echo ECS_CLUSTER=${cluster_name} >> /etc/ecs/ecs.config
 yum update -y
-yum install -y docker
-service docker start
-chkconfig docker on
-yum install -y aws-cli
-service ecs start
-chkconfig ecs on
-
-# Dynatrace OneAgent for EC2 metrics
-export DT_TOKEN="${dynatrace_token}"
-curl -H "accept:application/json" -H "Authorization: Api-Token DT_TOKEN" \
- "https://${dynatrace_tenant}.live.dynatrace.com/api/v1/deployment/installer/unix" | bash -s -- --set-infra-only
+yum install -y docker aws-cli
+systemctl enable docker
+systemctl start docker
+# Wait Docker ready
+until docker info > /dev/null 2>&1; do
+  echo "Waiting Docker..."
+  sleep 5
+done
+echo ECS_CLUSTER=${cluster_name} >> /etc/ecs/ecs.config
+systemctl enable ecs
+systemctl start ecs
+# Wait ECS agent
+until curl -s http://localhost:51678/v1/metadata | grep -q '"Cluster"'; do
+  echo "Waiting ECS agent..."
+  sleep 10
+done
+# Dynatrace (fixed header)
+curl -H "Authorization: Api-Token ${dynatrace_token}" \
+  "https://${dynatrace_tenant}.live.dynatrace.com/api/v1/deployment/installer/unix" | bash -s -- --set-infra-only
