@@ -1,5 +1,5 @@
 # terraform.tfvars.example - copy to terraform.tfvars for local
-key_name         = new_key  # EC2 keypair or null
+key_name         = new_key  
 dynatrace_tenant = "dt0c01..."
 dynatrace_token  = "JQCQRMPU..."
 
