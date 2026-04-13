@@ -1,11 +1,10 @@
-
 locals {
   dynatrace_url = "https://${var.dynatrace_tenant}.live.dynatrace.com"
 }
 
 resource "aws_iam_role_policy" "dynatrace_ec2_read" {
   name = "dynatrace-ec2-read"
-  role = aws_iam_role.ecsInstanceRole.id
+  role = var.ecs_instance_role_name
 
   policy = jsonencode({
     Version = "2012-10-17"

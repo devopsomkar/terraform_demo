@@ -1,18 +1,17 @@
-
 output "cluster_name" {
-  value = aws_ecs_cluster.my_cluster.name
+  value = module.ecs_core.cluster_name
 }
 
 output "service_arn" {
-  value = aws_ecs_service.my_first_service.arn
+  value = module.ecs_app.service_arn
 }
 
 output "ecr_url" {
-  value = aws_ecr_repository.my_first_ecr_repo.repository_url
+  value = module.ecr.repository_url
 }
 
 output "asg_name" {
-  value = aws_autoscaling_group.ecs_asg.name
+  value = module.ec2.asg_arn
 }
 
 output "dynatrace_tenant" {
@@ -22,4 +21,8 @@ output "dynatrace_tenant" {
 
 output "access_note" {
   value = "Open the public IP of the EC2 instance on http://<ec2-public-ip>:80"
+}
+
+output "dynatrace_url" {
+  value = "https://${var.dynatrace_tenant}.live.dynatrace.com"
 }

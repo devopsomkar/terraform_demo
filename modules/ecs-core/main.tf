@@ -1,4 +1,3 @@
-
 resource "aws_ecs_cluster" "my_cluster" {
   name = "my-ecs-cluster"
 }
@@ -7,7 +6,7 @@ resource "aws_ecs_capacity_provider" "ec2_cp" {
   name = "ec2-cp"
 
   auto_scaling_group_provider {
-    auto_scaling_group_arn         = aws_autoscaling_group.ecs_asg.arn
+    auto_scaling_group_arn         = var.asg_arn
     managed_termination_protection = "ENABLED"
 
     managed_scaling {

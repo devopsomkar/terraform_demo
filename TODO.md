@@ -1,60 +1,52 @@
-# TODO: Add EC2 Capacity to ECS Cluster - Progress
+# Terraform ECS Refactor to Modules TODO
 
-## Steps:
-- [x] 1. Create variables.tf with EC2 params
-- [x] 2. Create outputs.tf
-- [x] 3. Edit iam.tf to add EC2 instance role and profile
-- [x] 4. Create ec2.tf with launch template, instance profile, ASG
-- [x] 5. Edit ecs.tf to add capacity provider
-- [x] 6. Edit service.tf to use capacity provider strategy
-- [ ] 7. terraform fmt, validate, plan
-- [ ] 8. terraform apply
-- [x] All EC2/Dynatrace complete
-- [x] Nginx image in task def
-- [ ] terraform apply
-- [ ] Curl nginx page
+## Status: [ ] In Progress
 
-**All code edits complete!**
+### 1. [ ] Create modules directory structure
+- modules/vpc/, iam/, ecr/, ec2/, ecs-core/, ecs-app/
+- Each: main.tf, outputs.tf, variables.tf (where needed)
 
-## Final Steps:
-- [ ] 7. `terraform fmt && terraform validate`
-- [ ] 8. `terraform plan -var="key_name=your-keypair-name"` (optional key)
-- [ ] 9. `terraform apply`
-- [ ] 10. Push Docker image to ECR repo.
-- [ ] 11. Check AWS ECS console: EC2 instances joined to cluster, service running.
+### 2. ✅ Move VPC code
+- Copy vpc.tf → modules/vpc/main.tf
+- Add outputs.tf (vpc_id, public_subnet_ids)
+- Delete vpc.tf
 
-Your Terraform now provisions EC2 instances via ASG that auto-join the cluster via userdata, with capacity provider managing scaling.
+### 3. ✅ Move IAM code
+- iam.tf → modules/iam/main.tf
+- outputs.tf (instance_profile_name, task_exec_role_arn)
+- Delete iam.tf
 
-application flow
+### 4. [ ] Move ECR
+- ecr.tf → modules/ecr/main.tf
+- outputs.tf (repository_url)
+- Delete ecr.tf
 
-terraform apply
-    ↓
-EC2 starts → userdata: "Install Docker! Join cluster!"  ← YES, Docker installed here
-    ↓
-ECS Service: "Go run task on EC2!"
-    ↓
-EC2 Docker: pull nginx → start container → App on IP:80  ← YES, image pulled & deployed here
+### 5. ✅ Move EC2/ASG
+- ec2.tf → modules/ec2/main.tf
+- Pass vpc_id, subnets, profile_name, cluster_name vars
+- Delete ec2.tf
 
+### 6. ✅ Move ECS Core
+- ecs.tf → modules/ecs-core/main.tf  
+- Pass asg_arn
+- Delete ecs.tf
 
+### 7. ✅ Move ECS App (Task + Service)
+- taskdefination.tf + service.tf → modules/ecs-app/main.tf
+- Pass cluster_id, cp_name, repo_url, exec_role_arn
+- Delete both
 
-setup
+### 8. ✅ Create root main.tf
+- Call all modules with dependencies
 
-c:/Users/owani/OneDrive - Deloitte (O365D)/Desktop/terraform ecs/
-├── .gitignore
-├── .terraform.lock.hcl
-├── dynatrace.tf           ← NEW: Dynatrace config/policy/output
-├── ec2.tf                 ← ASG/launch template/userdata
-├── ecr.tf                 ← ECR repo
-├── ecs.tf                 ← Cluster (capacity provider TBD)
-├── iam.tf                 ← Roles/profiles (task + EC2)
-├── outputs.tf             ← Cluster/service/ECR/ASG/Dynatrace
-├── provider.tf            ← AWS ap-south-1 (creds fixed)
-├── README.md
-├── service.tf             ← ECS service
-├── taskdefination.tf      ← Task def (your app)
-├── TODO.md                ← Progress: All code done!
-├── userdata.sh            ← ECS + Dynatrace install
-├── variables.tf           ← EC2 + Dynatrace vars
-├── terraform.tfvars       ← key_name + your Dynatrace token
-└── vpc.tf                 ← Default subnets
+### 9. ✅ Update root outputs.tf, variables.tf
+
+### 10. ✅ Test
+- terraform init
+- terraform validate
+- terraform plan (no changes)
+- terraform apply (optional)
+
+### 11. ✅ Git commit & PR
+- Branch: blackboxai/refactor-modules
 
