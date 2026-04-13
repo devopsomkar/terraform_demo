@@ -46,18 +46,22 @@ resource "aws_launch_template" "ecs_launch_template" {
 }
 
 resource "aws_autoscaling_group" "ecs_asg" {
-  name                      = "ecs-asg"
-  vpc_zone_identifier       = [
+  name = "ecs-asg"
+
+  vpc_zone_identifier = [
     aws_default_subnet.ecs_az1.id,
     aws_default_subnet.ecs_az2.id,
     aws_default_subnet.ecs_az3.id
   ]
-  min_size                  = var.min_size
-  max_size                  = var.max_size
-  desired_capacity          = 1
+
+  min_size                  = 2
+  max_size                  = 2
+  desired_capacity          = 2
   health_check_type         = "EC2"
   health_check_grace_period = 300
-  protect_from_scale_in     = true
+
+  # Keep only if your ECS capacity provider requires managed termination protection
+  protect_from_scale_in = false
 
   launch_template {
     id      = aws_launch_template.ecs_launch_template.id
@@ -66,7 +70,7 @@ resource "aws_autoscaling_group" "ecs_asg" {
 
   tag {
     key                 = "AmazonECSManaged"
-    value               = true
+    value               = "true"
     propagate_at_launch = true
   }
 
@@ -74,5 +78,10 @@ resource "aws_autoscaling_group" "ecs_asg" {
     key                 = "Name"
     value               = "ecs-ec2-instance"
     propagate_at_launch = true
+  }
+
+  instance_refresh {
+    strategy = "Rolling"
+    triggers = ["launch_template"]
   }
 }
