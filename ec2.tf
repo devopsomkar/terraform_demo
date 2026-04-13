@@ -35,9 +35,7 @@ resource "aws_launch_template" "ecs_launch_template" {
   }
 
   user_data = base64encode(templatefile("${path.module}/userdata.sh.tftpl", {
-    cluster_name     = aws_ecs_cluster.my_cluster.name
-    dynatrace_tenant = var.dynatrace_tenant
-    dynatrace_token  = var.dynatrace_token
+    cluster_name = aws_ecs_cluster.my_cluster.name
   }))
 
   lifecycle {
@@ -59,7 +57,7 @@ resource "aws_autoscaling_group" "ecs_asg" {
   desired_capacity          = 2
   health_check_type         = "EC2"
   health_check_grace_period = 300
-  protect_from_scale_in     = true
+  protect_from_scale_in     = false
 
   launch_template {
     id      = aws_launch_template.ecs_launch_template.id
@@ -80,5 +78,13 @@ resource "aws_autoscaling_group" "ecs_asg" {
 
   instance_refresh {
     strategy = "Rolling"
+
+    preferences {
+      min_healthy_percentage      = 50
+      instance_warmup             = 60
+      scale_in_protected_instances = "Refresh"
+    }
+
+    triggers = ["launch_template"]
   }
 }
