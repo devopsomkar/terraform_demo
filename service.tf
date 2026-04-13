@@ -12,6 +12,6 @@ resource "aws_ecs_service" "my_first_services" {
 
   network_configuration {
     subnets          = [aws_default_subnet.ecs_az1.id]
-    assign_public_ip = true
+    assign_public_ip = false
   }
 }
