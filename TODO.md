@@ -25,6 +25,17 @@
 
 Your Terraform now provisions EC2 instances via ASG that auto-join the cluster via userdata, with capacity provider managing scaling.
 
+application flow
+
+terraform apply
+    ↓
+EC2 starts → userdata: "Install Docker! Join cluster!"  ← YES, Docker installed here
+    ↓
+ECS Service: "Go run task on EC2!"
+    ↓
+EC2 Docker: pull nginx → start container → App on IP:80  ← YES, image pulled & deployed here
+
+
 
 setup
 
