@@ -1,4 +1,4 @@
 
 key_name         = "new_key"
-dynatrace_tenant = "dt0c01xxxx"
-dynatrace_token  = "dt0c01.your_token_here"
+dynatrace_tenant = "azs89024"
+dynatrace_token  = "dt0c01.JQCQRMPU27SN3NP35HZXZPVB.HIE7JD2D5MLYRIWMQ6WAF4PMJPQXYDTXCEFCWNMAB6HGZLNJM4Y6FXLRBC5VMJJA"
