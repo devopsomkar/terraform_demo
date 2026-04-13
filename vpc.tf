@@ -1,4 +1,5 @@
-resource "aws_default_vpc" "ecs-vpc" {
+
+resource "aws_default_vpc" "ecs_vpc" {
   tags = {
     Name = "ECS-VPC"
   }

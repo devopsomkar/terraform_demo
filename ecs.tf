@@ -1,3 +1,4 @@
+
 resource "aws_ecs_cluster" "my_cluster" {
   name = "my-ecs-cluster"
 }
@@ -11,7 +12,7 @@ resource "aws_ecs_capacity_provider" "ec2_cp" {
 
     managed_scaling {
       status          = "ENABLED"
-      target_capacity = 20
+      target_capacity = 90
     }
   }
 }

@@ -1,6 +1,0 @@
-# terraform.tfvars.example - copy to terraform.tfvars for local
-key_name         = null  # EC2 keypair or null
-dynatrace_tenant = "dt0c01..."
-dynatrace_token  = "JQCQRMPU..."
-
-# Jenkins: git add .gitignore except; use Jenkins env/secrets for token

@@ -1,26 +1,41 @@
+
+resource "aws_cloudwatch_log_group" "ecs_app" {
+  name              = "/ecs/my-first-task"
+  retention_in_days = 7
+}
+
 resource "aws_ecs_task_definition" "my_first_task" {
   family                   = "my-first-task"
-  container_definitions    = <<DEFINITION
-[
-  {
-    "name": "my-first-task",
-    "image": "nginx:alpine",
-    "essential": true,
-    "portMappings": [
-      {
-        "containerPort": 80,
-        "hostPort": 80
-      }
-    ],
-    "memory": 512,
-    "cpu": 256,
-    "networkMode": "awsvpc"
-  }
-]
-  DEFINITION
   requires_compatibilities = ["EC2"]
-  network_mode             = "awsvpc"
-  memory                   = 512
+  network_mode             = "bridge"
+  cpu                      = "128"
+  memory                   = "256"
   execution_role_arn       = aws_iam_role.ecsTaskExecutionRole.arn
-  cpu                      = 256
+
+  container_definitions = jsonencode([
+    {
+      name      = "my-first-task"
+      image     = "nginx:alpine"
+      essential = true
+      cpu       = 128
+      memory    = 256
+
+      portMappings = [
+        {
+          containerPort = 80
+          hostPort      = 80
+          protocol      = "tcp"
+        }
+      ]
+
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.ecs_app.name
+          awslogs-region        = "ap-south-1"
+          awslogs-stream-prefix = "ecs"
+        }
+      }
+    }
+  ])
 }
